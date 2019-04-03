@@ -1,9 +1,12 @@
 import numpy as np
+from keras import optimizers
 import h5py
 import scipy.io
+import os
+from sklearn.metrics import roc_auc_score, roc_curve, auc
 np.random.seed(1337) # for reproducibility
 
-
+from tensorflow import set_random_seed
 from keras.preprocessing import sequence
 from keras.optimizers import RMSprop
 from keras.models import Sequential
@@ -25,24 +28,25 @@ testmat = scipy.io.loadmat('data/test.mat')
 X_train = np.transpose(np.array(trainmat['trainxdata']),axes=(0,2,1))
 y_train = np.array(trainmat['traindata'])
 
-forward_lstm = LSTM(input_shape=(3,), output_dim=320, return_sequences=True)
-backward_lstm = LSTM(input_shape=(3,), output_dim=320, return_sequences=True)
+forward_lstm = LSTM(units=320, return_sequences=True)
+backward_lstm = LSTM(units=320, return_sequences=True)
 brnn1 = Bidirectional(forward_lstm)
-
+brnn2 = Bidirectional(backward_lstm)
 
 
 print ('building model')
 
 model = Sequential()
-model.add(Convolution1D(input_dim=4,
-                        input_length=1000,
-                        nb_filter=320,
-                        filter_length=26,
-                        border_mode="valid",
-                        activation="relu",
-                        subsample_length=1))
 
-model.add(MaxPooling1D(pool_length=13, stride=13))
+model.add(Convolution1D(
+                        filters=320,
+			                  input_shape=(1000, 4),
+                        kernel_size=26,
+                        padding="valid",
+                        activation="relu",
+                        strides=1))
+
+model.add(MaxPooling1D(pool_size=13, strides=13))
 
 model.add(Dropout(0.2))
 
@@ -59,19 +63,40 @@ model.add(Dense(input_dim=925, units=919))
 model.add(Activation('sigmoid'))
 
 print ('compiling model')
+
 rms = optimizers.RMSprop(lr=0.0001, rho=0.9, epsilon=None, decay=0.0)
 model.compile(loss='binary_crossentropy', optimizer=rms)
-
 
 print ('running at most 50 epochs')
 
 checkpointer = ModelCheckpoint(filepath="DanQ_bestmodel.hdf5", verbose=1, save_best_only=True)
-earlystopper = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
+earlystopper = EarlyStopping(monitor='val_loss', patience=2, verbose=1)
 
 model.fit(X_train, y_train, batch_size=50, epochs=50, shuffle=True, validation_data=(np.transpose(validmat['validxdata'],axes=(0,2,1)), validmat['validdata']), callbacks=[checkpointer,earlystopper])
+#model.fit(X_train, y_train, batch_size=50, epochs=1, shuffle=True, validation_data=(np.transpose(validmat['validxdata'],axes=(0,2,1)), validmat['validdata']))
+print ('loading test data')
 
-tresults = model.evaluate(np.transpose(testmat['testxdata'],axes=(0,2,1)), testmat['testdata'],show_accuracy=True)
+validmat = scipy.io.loadmat('data/valid.mat')
+x = np.transpose(validmat['validxdata'],axes=(0,2,1))
+#testmat.close()
 
-print (tresults)
 
+print ('predicting on valid sequences')
+y = model.predict(x, verbose=1)
+
+pred=y
+y_test = validmat['validdata']
+
+for i in range(1,919):
+    print(roc_auc_score( y_test[:,i], pred[:,i]))
+    
+print ('predicting on test sequences')
+testmat = scipy.io.loadmat('data/test.mat')
+x = np.transpose(testmat['testxdata'],axes=(0,2,1))
+y = model.predict(x, verbose=1)
+pred=y
+y_test = testmat['testdata']
+
+for i in range(1,919):
+    print(roc_auc_score( y_test[:,i], pred[:,i]))
 
