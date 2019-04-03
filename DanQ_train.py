@@ -14,8 +14,7 @@ from keras.constraints import maxnorm
 from keras.layers.recurrent import LSTM, GRU
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.layers import Bidirectional
-#from seya.layers.recurrent import Bidirectional
-#from keras.utils.layer_utils import print_layer_shapes
+
 
 
 print ('loading data')
@@ -29,7 +28,7 @@ y_train = np.array(trainmat['traindata'])
 forward_lstm = LSTM(input_shape=(3,), output_dim=320, return_sequences=True)
 backward_lstm = LSTM(input_shape=(3,), output_dim=320, return_sequences=True)
 brnn1 = Bidirectional(forward_lstm)
-brnn2 = Bidirectional(backward_lstm)
+
 
 
 print ('building model')
@@ -48,7 +47,7 @@ model.add(MaxPooling1D(pool_length=13, stride=13))
 model.add(Dropout(0.2))
 
 model.add(brnn1)
-#model.add(Bidirectional(forward_lstm))
+
 model.add(Dropout(0.5))
 
 model.add(Flatten())
@@ -60,10 +59,11 @@ model.add(Dense(input_dim=925, units=919))
 model.add(Activation('sigmoid'))
 
 print ('compiling model')
-#model.compile(loss='binary_crossentropy', optimizer='rmsprop', class_mode="binary")
-model.compile(loss='binary_crossentropy', optimizer='rmsprop')
+rms = optimizers.RMSprop(lr=0.0001, rho=0.9, epsilon=None, decay=0.0)
+model.compile(loss='binary_crossentropy', optimizer=rms)
 
-print ('running at most 60 epochs')
+
+print ('running at most 50 epochs')
 
 checkpointer = ModelCheckpoint(filepath="DanQ_bestmodel.hdf5", verbose=1, save_best_only=True)
 earlystopper = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
