@@ -13,4 +13,5 @@ To submit the sbatch file, just type sbatch submission.sbatch and system will au
 on the desktop there will be an output telling us the job number. If the GPUs in the node is
 not busy, the job will run at once. Outouts will be recorded automatically in a slurm file. However, the scheduling will send the job into 
 the default Nvidia GPU, but if the node is busy, the submitted job will have to wait until its priority ranks the top. Of course, it is also possible 
-to use the GPU provided by CMSE department if we are one 
+to use the GPU provided by MSU CMSE department if you got registered before. The command is to add account and GPU name in front of the sbatch file
+. For example, I was using volta-001 then my command is like: sbatch --account=cmse --nodelist=nvl-001 submission.sbatch
