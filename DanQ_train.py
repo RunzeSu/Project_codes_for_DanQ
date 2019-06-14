@@ -40,7 +40,7 @@ model = Sequential()
 
 model.add(Convolution1D(
                         filters=320,
-			                  input_shape=(1000, 4),
+			input_shape=(1000, 4),
                         kernel_size=26,
                         padding="valid",
                         activation="relu",
