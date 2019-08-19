@@ -29,9 +29,9 @@ X_train = np.transpose(np.array(trainmat['trainxdata']),axes=(0,2,1))
 y_train = np.array(trainmat['traindata'])
 
 forward_lstm = LSTM(units=320, return_sequences=True)
-backward_lstm = LSTM(units=320, return_sequences=True)
+#backward_lstm = LSTM(units=320, return_sequences=True)
 brnn1 = Bidirectional(forward_lstm)
-brnn2 = Bidirectional(backward_lstm)
+
 
 
 print ('building model')
@@ -83,7 +83,7 @@ x = np.transpose(validmat['validxdata'],axes=(0,2,1))
 
 print ('predicting on valid sequences')
 y = model.predict(x, verbose=1)
-
+'''
 pred=y
 y_test = validmat['validdata']
 
@@ -99,4 +99,4 @@ y_test = testmat['testdata']
 
 for i in range(1,919):
     print(roc_auc_score( y_test[:,i], pred[:,i]))
-
+'''
