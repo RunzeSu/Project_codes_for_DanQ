@@ -1,0 +1,17 @@
+This is a breif tutorial to run python codes on HPCC GPU provided by Michigan State University. 
+
+Before we utilization of HPCC GPU, we need to log into our account by typing ssh usersname@hpcc.msu.edu. To apply for an account, please 
+visit https://contact.icer.msu.edu/account.
+
+After logging into the account, there will be several nodes to choose, basically we choose intel-16-k80 by typing ssh intel-16-k80. Then write down an sbatch 
+file because GPU only works for scheduling a job. Of course, MSU HPCC also provides CPU environment to run codes on CPU, and if we run 
+codes on desktop, HPCC will use default CPU with limited memory and time (up to 2 hours). I posted the sbatch file for job submission, 
+the default running time was set as 20 hours because each epoch would take about 13 minutes and we set the total epochs to be 60.
+Besides, we can also change the number of GPUs and memory from the command. 
+
+To submit the sbatch file, just type sbatch submission.sbatch and system will automatically put the job into a queue, 
+on the desktop there will be an output telling us the job number. If the GPUs in the node is
+not busy, the job will run at once. Outouts will be recorded automatically in a slurm file. However, the scheduling will send the job into 
+the default Nvidia GPU, but if the node is busy, the submitted job will have to wait until its priority ranks the top. Of course, it is also possible 
+to use the GPU provided by MSU CMSE department if you got registered before. The command is to add account and GPU name in front of the sbatch file
+. For example, I was using volta-001 then my command is like: sbatch --account=cmse --nodelist=nvl-001 submission.sbatch

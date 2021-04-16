@@ -1,0 +1,19 @@
+#!/bin/bash --login
+ 
+#SBATCH --job-name=test_matmul
+#SBATCH --time=1:00:00
+#SBATCH --gres=gpu:1
+#SBATCH --mem-per-cpu=300G
+#SBATCH --output=%x-%j.SLURMout
+  
+cd ${PBS_O_WORKDIR}
+  
+
+cd /mnt/home/surunze/biostat_project/transformer/
+source tr/bin/activate
+module purge
+module load GCC/7.3.0-2.30  OpenMPI/3.1.1-CUDA
+
+module load Python/3.7.0
+
+python experiment.py
