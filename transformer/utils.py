@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 from torch.utils import data
 import h5py
+import os
 
 class Dataset(data.Dataset):
     def __init__(self, x, y):
@@ -32,26 +33,25 @@ def load_data(batch_size=64, is_onehot=False, is_shuffle=True, data_dir="../data
     """
     para = {'batch_size':batch_size,
             'shuffle': is_shuffle}
-
+    print("Now printing data_dir", data_dir)
     if is_onehot:
+        
         print ('load train')
-        train_x = torch.FloatTensor(np.transpose(np.array((h5py.File('dataset/train.mat'))['trainxdata']),axes=(2,0,1)))
-        train_y = torch.FloatTensor(np.array((h5py.File('dataset/train.mat'))['traindata']).T)
-
-        para['batch_size'] = batch_size
+        train_x = torch.FloatTensor(np.transpose(np.array((h5py.File(os.path.join(data_dir, 'train.mat')))['trainxdata']),axes=(2,0,1)))
+        train_y = torch.FloatTensor(np.array((h5py.File(os.path.join(data_dir, 'train.mat'))['traindata'])).T)
         train_set = Dataset(train_x, train_y)
         train_loader = data.DataLoader(train_set, **para)
 
         print ('load test')
-        test_x = torch.FloatTensor(np.transpose(scipy.io.loadmat('dataset/test.mat')['testxdata'],axes=(0,2,1)))
-        test_y = torch.FloatTensor((scipy.io.loadmat('dataset/test.mat'))['testdata'])
+        test_x = torch.FloatTensor(np.transpose(scipy.io.loadmat(os.path.join(data_dir, 'test.mat'))['testxdata'],axes=(0,2,1)))
+        test_y = torch.FloatTensor(scipy.io.loadmat(os.path.join(data_dir, 'test.mat'))['testdata'])
 
         test_set = Dataset(test_x, test_y)
         test_loader = data.DataLoader(test_set, **para)
-
+        
         print ('load valid')
-        valid_x = torch.FloatTensor(np.transpose(scipy.io.loadmat('dataset/valid.mat')['validxdata'],axes=(0,2,1)))
-        valid_y = torch.FloatTensor((scipy.io.loadmat('dataset/valid.mat'))['validdata'])
+        valid_x = torch.FloatTensor(np.transpose(scipy.io.loadmat(os.path.join(data_dir, 'valid.mat'))['validxdata'],axes=(0,2,1)))
+        valid_y = torch.FloatTensor((scipy.io.loadmat(os.path.join(data_dir, 'valid.mat')))['validdata'])
 
         valid_set = Dataset(valid_x, valid_y)
         valid_loader = data.DataLoader(valid_set, **para)
@@ -92,7 +92,7 @@ def load_data(batch_size=64, is_onehot=False, is_shuffle=True, data_dir="../data
 
     print (train_x.shape, valid_x.shape, test_x.shape)
     return  train_loader, valid_loader, test_loader
-
+    #return  valid_loader, valid_loader, valid_loader
 
 
 

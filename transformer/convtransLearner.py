@@ -4,6 +4,7 @@ import numpy as np
 import time
 from model_convtrans import  *
 from utils import *
+from torchsummary import summary
 # teee
 class convtransLearner(object):
     def __init__(self, **kwargs):
@@ -28,6 +29,8 @@ class convtransLearner(object):
             self.batch_size = batch_size
 
     def train(self, num_epoch, train_loader, valid_loader):
+        print(self.model)
+        print(sum(p.numel() for p in self.model.parameters()))
         verbose=False
         self.file_obj = open(self.filename, 'w')
         self.file_obj.write('Training:\n')

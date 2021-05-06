@@ -1,0 +1,12 @@
+#!/bin/bash --login
+ 
+#SBATCH --job-name=test_matmul
+#SBATCH --time=1:00:00
+#SBATCH --gres=gpu:1
+#SBATCH --mem-per-cpu=1G
+#SBATCH --output=%x-%j.SLURMout
+  
+cd ${PBS_O_WORKDIR}
+  
+
+python experiment_trial.py

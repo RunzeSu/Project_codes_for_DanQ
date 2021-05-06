@@ -1,0 +1,20 @@
+#!/bin/bash --login
+ 
+#SBATCH --job-name=test_matmul
+#SBATCH --time=168:00:00
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=100G
+#SBATCH --output=%x-%j.SLURMout
+  
+cd ${PBS_O_WORKDIR}
+  
+
+cd /mnt/home/surunze/biostat_project/transformer/
+source tr/bin/activate
+cd /mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transformer/
+module purge
+module load GCC/7.3.0-2.30  OpenMPI/3.1.1-CUDA
+
+module load Python/3.7.0
+
+python experiment.py

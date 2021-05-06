@@ -53,15 +53,17 @@ def main():
 
     f_d = os.path.abspath(__file__)
     out_dir = os.sep.join(f_d.split(os.sep)[:-1]) + '/output/'
-
+    print(out_dir)
 
     onehot = False
     if args.model_type == 'conv':
         onehot = True
+    
     if onehot:
-        dataset = './dataset/'
+        dataset = '/mnt/ufs18/home-052/surunze/biostat_project/archive_1/transcheckkernels1200/dataset/'
     else:
-        dataset = '../dataset/idx_dataset/'
+        dataset = '/mnt/ufs18/home-052/surunze/biostat_project/archive_1/transcheckkernels1200/dataset/'
+    print(dataset)
     train_loader, valid_loader, test_loader = load_data(args.batch_size, 
                                              is_onehot=onehot,
                                              is_shuffle=True,
@@ -111,17 +113,18 @@ def main():
 	    'lr':args.learning_rate,
 	    'bs':args.batch_size,
 	    'test':args.test,
-	    'wd':0.00000001,
+	    'wd':0.001,
         'con':args.con
 	    }
 
+    print("learner starting")
     if args.model_type == 'xtrans':
         learner = XL.xtransLearner(**kwargs)
     elif args.model_type == 'conv':
         learner = CL.convtransLearner(**kwargs)
     else:
         learner = ML.modelLearner(**kwargs)
-
+    print("learner constructed!")
     ###########################################################################
     if not args.test:
         learner.train(args.nepochs, train_loader, valid_loader)
