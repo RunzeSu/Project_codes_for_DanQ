@@ -1,0 +1,23 @@
+#!/bin/bash --login
+ 
+#SBATCH --job-name=test_matmul
+#SBATCH --time=168:00:00
+#SBATCH --nodes=1
+#SBATCH --mem=200G
+#SBATCH --ntasks=1                  # number of tasks - how many tasks (nodes) that you require (same as -n)
+#SBATCH --cpus-per-task=1 
+#SBATCH --gres=gpu:v100:2
+#SBATCH --output=%x-%j.SLURMout
+  
+cd ${PBS_O_WORKDIR}
+  
+
+cd /mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transformer_informer/
+source informer_env/bin/activate
+cd /mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transformer_informer/bio_informer/
+module purge
+module load GCC/8.2.0
+module load Python/3.7.2
+module load CUDA/9.0.176 cuDNN/7.0.2-CUDA-9.0.176
+
+python3 -u main_informer.py --model informer --attn prob --freq h

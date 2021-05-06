@@ -1,0 +1,148 @@
+Args in experiment:
+Namespace(activation='gelu', attn='prob', batch_size=200, c_out=1, checkpoints='./checkpoints/', d_ff=512, d_layers=1, d_model=256, data_path='ETTh1.csv', dec_in=4, des='test', detail_freq='h', devices='0,1,2,3', distil=True, do_predict=False, dropout=0.05, e_layers=2, embed='timeF', enc_in=4, factor=5, features='MS', freq='h', gpu=0, inverse=False, itr=2, label_len=1000, learning_rate=0.0001, loss='mse', lradj='type1', model='informer', n_heads=4, num_workers=0, output_attention=False, patience=3, pred_len=919, root_path='./data/ETT/', s_layers=[3, 2, 1], seq_len=1000, target='OT', train_epochs=60, use_amp=False, use_gpu=True, use_multi_gpu=False)
+Use GPU: cuda:0
+>>>>>>>start training : informer_MS_ft1000_sl1000_ll919_pl256_dm4_nh2_el1_dl512_dfprob_at5_fctimeF_ebTrue_dttest_0>>>>>>>>>>>>>>>>>>>>>>>>>>
+Informer(
+  (enc_embedding): DataEmbedding(
+    (value_embedding): TokenEmbedding(
+      (tokenConv): Conv1d(4, 256, kernel_size=(3,), stride=(1,), padding=(1,), padding_mode=circular)
+    )
+    (position_embedding): PositionalEmbedding()
+    (temporal_embedding): TimeFeatureEmbedding(
+      (embed): Linear(in_features=4, out_features=256, bias=True)
+    )
+    (dropout): Dropout(p=0.05, inplace=False)
+  )
+  (dec_embedding): DataEmbedding(
+    (value_embedding): TokenEmbedding(
+      (tokenConv): Conv1d(4, 256, kernel_size=(3,), stride=(1,), padding=(1,), padding_mode=circular)
+    )
+    (position_embedding): PositionalEmbedding()
+    (temporal_embedding): TimeFeatureEmbedding(
+      (embed): Linear(in_features=4, out_features=256, bias=True)
+    )
+    (dropout): Dropout(p=0.05, inplace=False)
+  )
+  (encoder): Encoder(
+    (attn_layers): ModuleList(
+      (0): EncoderLayer(
+        (attention): AttentionLayer(
+          (inner_attention): ProbAttention(
+            (dropout): Dropout(p=0.05, inplace=False)
+          )
+          (query_projection): Linear(in_features=256, out_features=256, bias=True)
+          (key_projection): Linear(in_features=256, out_features=256, bias=True)
+          (value_projection): Linear(in_features=256, out_features=256, bias=True)
+          (out_projection): Linear(in_features=256, out_features=256, bias=True)
+        )
+        (conv1): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        (conv2): Conv1d(512, 256, kernel_size=(1,), stride=(1,))
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout): Dropout(p=0.05, inplace=False)
+      )
+      (1): EncoderLayer(
+        (attention): AttentionLayer(
+          (inner_attention): ProbAttention(
+            (dropout): Dropout(p=0.05, inplace=False)
+          )
+          (query_projection): Linear(in_features=256, out_features=256, bias=True)
+          (key_projection): Linear(in_features=256, out_features=256, bias=True)
+          (value_projection): Linear(in_features=256, out_features=256, bias=True)
+          (out_projection): Linear(in_features=256, out_features=256, bias=True)
+        )
+        (conv1): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        (conv2): Conv1d(512, 256, kernel_size=(1,), stride=(1,))
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout): Dropout(p=0.05, inplace=False)
+      )
+    )
+    (conv_layers): ModuleList(
+      (0): ConvLayer(
+        (downConv): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(2,), padding_mode=circular)
+        (norm): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (activation): ELU(alpha=1.0)
+        (maxPool): MaxPool1d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+      )
+    )
+    (norm): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+  )
+  (decoder): Decoder(
+    (layers): ModuleList(
+      (0): DecoderLayer(
+        (self_attention): AttentionLayer(
+          (inner_attention): ProbAttention(
+            (dropout): Dropout(p=0.05, inplace=False)
+          )
+          (query_projection): Linear(in_features=256, out_features=256, bias=True)
+          (key_projection): Linear(in_features=256, out_features=256, bias=True)
+          (value_projection): Linear(in_features=256, out_features=256, bias=True)
+          (out_projection): Linear(in_features=256, out_features=256, bias=True)
+        )
+        (cross_attention): AttentionLayer(
+          (inner_attention): FullAttention(
+            (dropout): Dropout(p=0.05, inplace=False)
+          )
+          (query_projection): Linear(in_features=256, out_features=256, bias=True)
+          (key_projection): Linear(in_features=256, out_features=256, bias=True)
+          (value_projection): Linear(in_features=256, out_features=256, bias=True)
+          (out_projection): Linear(in_features=256, out_features=256, bias=True)
+        )
+        (conv1): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        (conv2): Conv1d(512, 256, kernel_size=(1,), stride=(1,))
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout): Dropout(p=0.05, inplace=False)
+      )
+    )
+    (norm): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+  )
+  (projection): Linear(in_features=256, out_features=1, bias=True)
+  (activation): Sigmoid()
+)
+2052865
+load train
+train 4400000
+train data loaded
+load valid
+val 8000
+valid data loaded
+load test
+test 455024
+test data loaded
+train data train data 4
+train data train data torch.Size([1000, 4])
+train data train data torch.Size([1000, 4]) torch.Size([1000, 4]) torch.Size([1000, 4]) torch.Size([1000, 4])
+train data train data torch.Size([1919, 4]) torch.Size([1919, 4]) torch.Size([1919, 4]) torch.Size([1919, 4])
+train data train data torch.Size([1000, 1]) torch.Size([1000, 1]) torch.Size([1000, 1]) torch.Size([1000, 1])
+train data train data torch.Size([1919, 1]) torch.Size([1919, 1]) torch.Size([1919, 1]) torch.Size([1919, 1])
+Traceback (most recent call last):
+  File "main_informer.py", line 88, in <module>
+    exp.train(setting)
+  File "/mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transformer_informer/bio_informer/exp/exp_informer.py", line 294, in train
+    outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+  File "/mnt/home/surunze/.local/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transformer_informer/bio_informer/models/model.py", line 77, in forward
+    dec_out = self.decoder(dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
+  File "/mnt/home/surunze/.local/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transformer_informer/bio_informer/models/decoder.py", line 46, in forward
+    x = layer(x, cross, x_mask=x_mask, cross_mask=cross_mask)
+  File "/mnt/home/surunze/.local/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transformer_informer/bio_informer/models/decoder.py", line 23, in forward
+    attn_mask=x_mask
+  File "/mnt/home/surunze/.local/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transformer_informer/bio_informer/models/attn.py", line 156, in forward
+    attn_mask
+  File "/mnt/home/surunze/.local/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transformer_informer/bio_informer/models/attn.py", line 114, in forward
+    scores_top, index = self._prob_QK(queries, keys, sample_k=U_part, n_top=u) 
+  File "/mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transformer_informer/bio_informer/models/attn.py", line 56, in _prob_QK
+    Q_K_sample = torch.matmul(Q.unsqueeze(-2), K_sample.transpose(-2, -1)).squeeze()
+RuntimeError: CUDA out of memory. Tried to allocate 14.64 GiB (GPU 0; 31.75 GiB total capacity; 23.24 GiB already allocated; 417.75 MiB free; 29.89 GiB reserved in total by PyTorch)
