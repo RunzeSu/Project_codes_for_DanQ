@@ -1,0 +1,22 @@
+#!/bin/bash --login
+ 
+#SBATCH --job-name=100hour_PR_based_learning_0.0001_N=3weight5e-4drop=0.1
+#SBATCH --time=100:00:00
+#SBATCH --gres=gpu:v100:1
+#SBATCH --mem-per-cpu=150G
+#SBATCH --output=%x-%j.SLURMout
+  
+cd ${PBS_O_WORKDIR}
+  
+
+cd /mnt/home/surunze/biostat_project/archive_1/transcheckkernels/
+source tr/bin/activate
+
+cd /mnt/ufs18/home-052/surunze/Project_codes_for_DanQ/transdanq/
+
+module purge
+module load GCC/7.3.0-2.30  OpenMPI/3.1.1-CUDA
+
+module load Python/3.7.0
+
+python experiment.py
