@@ -45,8 +45,8 @@ def load_data(batch_size=64, is_onehot=False, is_shuffle=True, data_dir="../data
     if is_onehot:
         print ('load train')
         
-        train_x = torch.FloatTensor(np.transpose(np.array((h5py.File('dataset/train.mat', 'r'))['trainxdata']),axes=(2,0,1)))
-        train_y = torch.FloatTensor(np.array((h5py.File('dataset/train.mat', 'r'))['traindata']).T)
+        train_x = torch.FloatTensor(np.transpose(np.array((h5py.File('dataset/train.mat', 'r'))['trainxdata']),axes=(2,0,1)))[:2200000]
+        train_y = torch.FloatTensor(np.array((h5py.File('dataset/train.mat', 'r'))['traindata']).T)[:2200000]
         #train_x = torch.FloatTensor(np.transpose(scipy.io.loadmat('dataset/train.mat')['trainxdata'],axes=(0,2,1)))
         #train_y = torch.FloatTensor((scipy.io.loadmat('dataset/train.mat'))['traindata'])
         para['batch_size'] = batch_size

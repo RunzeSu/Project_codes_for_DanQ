@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math, copy, time
 from torch.autograd import Variable
-
+from torchviz import make_dot
 
 
 ####
@@ -239,23 +239,49 @@ class EncoderModel(nn.Module):
 """
 class EncoderModel(nn.Module):
 
-    def __init__(self, conv, pool, encoder1, encoder2, position_emb, n_class, d_model):
+    def __init__(self, conv1, conv11, conv12, conv2, conv21, conv22, pool, encoder1, encoder2, position_emb, n_class, d_model):
         super(EncoderModel, self).__init__()
-        self.conv = conv
+        self.conv1 = conv1
+        self.conv11 = conv11
+        self.conv12 = conv12
+        self.conv2 = conv2
+        self.conv21 = conv21
+        self.conv22 = conv22
+        self.bnorm1D = nn.BatchNorm1d(d_model-1)
+        self.bnorm1D_2 = nn.BatchNorm1d(d_model-1)
         self.pool = pool
         self.encoder1 = encoder1
         self.encoder2 = encoder2
         self.pos_emb = position_emb
-        self.lay_predict = nn.Sequential(nn.Linear(2*d_model, n_class), nn.Sigmoid())
+        self.lay_nn = nn.Sequential(nn.Linear(2*d_model, d_model), nn. ReLU())
+        self.lay_predict = nn.Sequential(nn.Linear(d_model, n_class), nn.Sigmoid())
         
     def forward(self, src):
         
-        x1 = self.conv(torch.transpose(src,1,2))
-        x2 = self.conv(torch.transpose(torch.flip(src, [1]),1,2))
+        x1 = self.conv1(torch.transpose(src,1,2))
         x1 = F.relu(x1)
-        x2 = F.relu(x2)
         x1 = self.pool(x1)
+        fx1 = self.bnorm1D(x1)
+        fx1 = F.relu(fx1)
+        fx1 = self.conv11(fx1)
+        fx1=self.bnorm1D_2(fx1)
+        fx1 = F.relu(fx1)
+        fx1 = self.conv12(fx1)
+        x1=fx1+x1
+        x1 = self.pool(x1)
+        
+        x2 = self.conv2(torch.transpose(self.to_basepair(torch.flip(src, [1]),1,2)))
+        x2 = F.relu(x2)
         x2 = self.pool(x2)
+        fx2 = self.bnorm1D(x2)
+        fx2 = F.relu(fx2)
+        fx2 = self.conv21(fx2)
+        fx2 = self.bnorm1D_2(fx2)
+        fx2 = F.relu(fx2)
+        fx2 = self.conv22(fx2)
+        x2 = fx2+x2
+        x2 = self.pool(x2)
+        
         
         tmp11 = torch.from_numpy(np.zeros((len(x1), 1023, 1), dtype=np.float32)).float().to(devices)
         tmp21 = torch.from_numpy(np.zeros((len(x1), 1, 76), dtype=np.float32)).float().to(devices)
@@ -275,7 +301,7 @@ class EncoderModel(nn.Module):
         x2 = self.pos_emb(torch.transpose(x2, 1, 2))
         x2 = self.encode2(x2)
         x2 = x2[:, 0, :]
-        x = torch.cat((x1, x2), 1)
+        x = self.lay_nn(torch.cat((x1, x2), 1))
         return x
 
     def encode1(self, x):
@@ -283,7 +309,15 @@ class EncoderModel(nn.Module):
     
     def encode2(self, x):
         return self.encoder2(x)
-
+        
+    def to_basepair(self, x):
+        pair = torch.zeros_like(x)
+        pair[:, :, 0] = x[:, :, 3]
+        pair[:, :, 1] = x[:, :, 2]
+        pair[:, :, 2] = x[:, :, 1]
+        pair[:, :, 3] = x[:, :, 0]
+        return pair
+        
     def predict(self, x):
         x = self.forward(x)
         pred = self.lay_predict(x)
@@ -291,7 +325,7 @@ class EncoderModel(nn.Module):
     
            
     def forwardcnn(self, src):
-        x = self.conv(torch.transpose(src,1,2))
+        x = self.conv1(torch.transpose(src,1,2))
         x = F.relu(x)
         return x
         
@@ -305,17 +339,24 @@ class EncoderModel(nn.Module):
         return l
 
 def make_model(src_vocab, n_class, N=6, 
-               d_model=512, d_ff=2048, h=8, dropout=0.1):
+               d_model=512, d_ff=2048, h=1, dropout=0.1):
     "Helper: Construct a model from hyperparameters."
     c = copy.deepcopy
     attn = MultiHeadedAttention(h, d_model)
     ff = PositionwiseFeedForward(d_model, d_ff, dropout)
     position = PositionalEncoding(d_model, dropout)
     conv = nn.Conv1d(4, d_model - 1, 26)
+    conv1 = nn.Conv1d(in_channels=d_model - 1, out_channels=d_model - 1, kernel_size=3, padding=1)
+    conv2 = nn.Conv1d(in_channels=d_model - 1, out_channels=d_model - 1, kernel_size=3, padding=1)
     pool = nn.MaxPool1d(13,13)
     encode = Encoder(EncoderLayer(d_model, c(attn), c(ff), dropout), N)
     model = EncoderModel(
         c(conv),
+        c(conv1),
+        c(conv2),
+        c(conv),
+        c(conv1),
+        c(conv2),
         c(pool),
         c(encode),
         c(encode),
@@ -329,10 +370,3 @@ def make_model(src_vocab, n_class, N=6,
         if p.dim() > 1:
             nn.init.xavier_uniform_(p)
     return model.to(devices)
-
-
-
-
-
-
-

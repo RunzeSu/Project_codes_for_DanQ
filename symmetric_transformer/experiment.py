@@ -32,13 +32,13 @@ def main():
     parser.add_argument('-MT', '--model_type', type=str, default='conv', help='Model type.')
     parser.add_argument('-B','--batch_size', type=int, default=100, help='Batch size.')
     parser.add_argument('-NE','--nepochs', type=int, default=200, help='Number of epochs to train.')
-    parser.add_argument('-L', '--learning_rate', type=float, default=0.001, help='Initial learning rate.')
+    parser.add_argument('-L', '--learning_rate', type=float, default=0.0001, help='Initial learning rate.')
     parser.add_argument('-N', '--num_layer', type=int, default=2)
     parser.add_argument('-N_1', '--num_layer_1', type=int, default=2)
     parser.add_argument('-N_2', '--num_layer_2', type=int, default=1)
 #    parser.add_argument('-N_3', '--num_layer_3', type=int, default=1)
     parser.add_argument('--local_size', type=int, default=3)
-    parser.add_argument('--h', type=int, default=2)
+    parser.add_argument('--h', type=int, default=1)
     parser.add_argument('--d_model', type=int, default=1024, help='dataset')
     parser.add_argument('--d_ff', type=int, default=1024, help='dataset')
     parser.add_argument('--data', type=str, default='ml', help='dataset')
@@ -56,14 +56,10 @@ def main():
     f_d = os.path.abspath(__file__)
     out_dir = os.sep.join(f_d.split(os.sep)[:-1]) + '/outputnow1/'
 
-
-    onehot = False
-    if args.model_type == 'conv':
-        onehot = True
+    onehot = True
     if onehot:
         dataset = './dataset/'
-    else:
-        dataset = '../dataset/idx_dataset/'
+    
     train_loader, valid_loader, test_loader = load_data(args.batch_size, 
                                              is_onehot=onehot,
                                              is_shuffle=True,
@@ -113,7 +109,6 @@ def main():
         'con':args.con
       }
     print("model construction started...")
-    
     learner = CL.convtransLearner(**kwargs)
     print("model construction finished!")
     #learner.model = torch.load('./JASPARmodel30float64')
@@ -134,25 +129,6 @@ def main():
     '''
     #for i in range(8000):
  
-    def motif_product(k):
-        kernelk = all_score[:,k,:]
-        listk=[]
-        for i in range(train_X.shape[0]):
-            listk.append(train_X[i,(np.where(kernelk[i,:]==max(kernelk[i,:])))[0][0]:(np.where(kernelk[i,:]==max(kernelk[i,:])))[0][0]+26,:])
-        
-        
-        matrixk=np.zeros(np.array(listk[i]).T.shape)
-    
-        for i in range(train_X.shape[0]):
-            matrixk = np.array(listk[i]).T + matrixk
-
-    
-        matrixk = matrixk/train_X.shape[0]
-        PWMk = seqlogo.pfm2pwm(matrixk.T)
-        PPMk = seqlogo.pwm2ppm(PWMk, background = None, pseudocount = None)
-        sio.savemat('PPM'+str(k)+'.mat', {'PPM'+str(k) : matrixk.T})
-        return PWMk, PPMk
-        
     '''     
     def changekernels(length):
         kernelorder=sio.loadmat('orders.mat')['orders']
